@@ -1,0 +1,8 @@
+*.pdb
+*.xml
+*.dll
+*.sln
+*.csproj
+obj
+.vs
+*.exe
