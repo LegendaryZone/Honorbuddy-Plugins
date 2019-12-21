@@ -31,7 +31,7 @@ namespace ah
 {
     public class AH : HBPlugin
     {
-        public override string Name { get { return "Auction House Bot"; } }
+        public override string Name { get { return "Mail Bot"; } }
         public override string Author { get { return "Mila432"; } }
         public override Version Version { get { return new Version(1, 0, 0, 0); } }
         private LocalPlayer Me { get { return StyxWoW.Me; } }
@@ -52,13 +52,11 @@ namespace ah
         bool doingMailv2 = false;
         bool doingPostv2 = false;
         bool debug_m = false;
-        bool startedAuction = false;
         bool hasAuction = false;
         bool hasNoMoreMail = false;
         string token = "";
         System.Timers.Timer aTimer;
         System.Timers.Timer loginTimer;
-        System.Timers.Timer relogTimer;
         static Dictionary<int, string> whispers = new Dictionary<int, string>();
 
         private WoWUnit findAuctioner()
@@ -70,6 +68,101 @@ namespace ah
         {
             return ObjectManager.GetObjectsOfType<WoWGameObject>().Where(u => u.SubType == WoWGameObjectType.Mailbox).OrderBy(u => u.Distance).FirstOrDefault();
         }
+        #region GetMail
+        public async Task GetMail()
+        {
+            if (!TreeRoot.IsRunning || !doingMail)
+                return;
+            if (Me.Inventory.FreeSlots <= 0)
+            {
+                Log("inv ist voll");
+                doingMail = false;
+                prepareSendMessage(string.Format("inventar ist voll {0}:-1", Me.Name.ToString()), "241166290855788547");
+            }
+            //findAuctioner().Target();
+            Log("GetMail was called");
+            WoWGameObject mymailbox = GetMailBox();
+            if (!mymailbox.WithinInteractRange)
+            {
+                bool tmp = mymailbox.WithinInteractRange;
+                while (!tmp)
+                {
+                    if (Me.FactionGroup == Styx.WoWFactionGroup.Horde)
+                    {
+                        WoWMovement.ClickToMove(1615.096f, -4421.901f, 15.78829f);
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(2000);
+                        });
+                        WoWMovement.ClickToMove(1606.605f, -4422.742f, 13.70115f);
+                    }
+                    else
+                        WoWMovement.ClickToMove(mymailbox.Location);
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(700);
+                    });
+                    tmp = mymailbox.WithinInteractRange;
+                }
+                GetMail();
+            }
+            else
+            {
+                if (Styx.CommonBot.Frames.MailFrame.Instance.IsVisible)
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(700);
+                    });
+                    Lua.DoString("MILA_INBOX:getAll()");
+                    bool tmp = true;
+                    while (tmp)
+                    {
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(700);
+                        });
+                        Lua.DoString("MILA_INBOX:getAll()");
+                        Log("we have more mail");
+                        tmp = Lua.GetReturnVal<bool>("return MILA_INBOX:hasMail()", 0);
+                        hasNoMoreMail = tmp;
+                        //if (!tmp)
+                        //hasNoMoreMail = true;
+                        if (Styx.CommonBot.Frames.MailFrame.Instance.MailCount == 0 && tmp)
+                        {
+                            Lua.DoString("ConsoleExec(\"reloadui\")");
+                            await Task.Run(async () =>
+                            {
+                                await Task.Delay(8000);
+                            });
+                        }
+                    }
+                    if (!Lua.GetReturnVal<bool>("return MILA_INBOX:hasMail()", 0))
+                    {
+                        if (Me.FactionGroup == Styx.WoWFactionGroup.Horde)
+                            WoWMovement.ClickToMove(1607.294f, -4412.928f, 14.56731f);
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(2000);
+                        });
+                        Me.CurrentTarget.Face();
+                        doingMail = false;
+                    }
+                    Styx.CommonBot.Frames.MailFrame.Instance.Close();
+                }
+                else
+                {
+                    mymailbox.Interact();
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                    });
+                    GetMail();
+                }
+            }
+            Log("ende von getmail");
+        }
+        #endregion
         #region doStuffWithNPC
         private void doStuffWithNPC()
         {
@@ -95,7 +188,7 @@ namespace ah
             await Task.Run(async () =>
             {
                 await Task.Delay(600000);
-                //if (!doingMailv2 && !doingPostv2 && !TreeRoot.IsRunning)
+                if (!doingMailv2 && !doingPostv2 && !TreeRoot.IsRunning)
                     doReload();
             });
             sleepThread = false;
@@ -122,90 +215,11 @@ namespace ah
                 foundAuctioner.Face();
             }
         }
-        #endregion
+#endregion
         public async Task GetMailv2()
         {
-            
-            //debug_m = true;
-            doingMailv2 = true;
-            Log("GetMailv2");
-            WoWGameObject mail = GetMailBox();
-            Log("moving to Post");
-            bool canUseMail = mail.CanUseNow();
-            await Task.Run(async () =>
-            {
-                WoWMovement.ClickToMove(mail.Location);
-                await Task.Delay(3000);
-            });
-
-            Log("nach post usen schleife");
-            Log("können post usen");
-            //bool isopen = Styx.CommonBot.Frames.MailFrame.Instance.IsVisible;
-            mail.Interact();
-            bool hasMail = true;
-            while (hasMail)
-            {
-                Log("hasMail");
-                Lua.DoString("CloseAllBags()");
-                if (!StyxWoW.IsInGame || !StyxWoW.IsInWorld)
-                {
-                    Log("nicht im spiel");
-                    await Task.Run(async () =>
-                    {
-                        await Task.Delay(7000);
-                    });
-                    mail.Interact();
-                }
-                //Log("wir haben post");
-                bool isMailOpen = Styx.CommonBot.Frames.MailFrame.Instance.IsVisible;
-                while (!isMailOpen)
-                {
-                    Log("mail nicht offen");
-                    mail.Interact();
-                    await Task.Run(async () =>
-                    {
-                        await Task.Delay(500);
-                    });
-                    isMailOpen = Styx.CommonBot.Frames.MailFrame.Instance.IsVisible;
-                }
-                Log("mail offen");
-                if (isMailOpen)
-                    Lua.DoString("MILA_INBOX:getAll()");
-                await Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                });
-                if (Lua.GetReturnVal<bool>("return MILA_INBOX:shouldReload()", 0))
-                {
-                    Log("wir haben mehr post aber seite ist leer");
-                    doReload();
-                    await Task.Run(async () =>
-                    {
-                        await Task.Delay(9000);
-                    });
-                }
-                while (!isMailOpen)
-                {
-                    Log("mail nicht offen");
-                    mail.Interact();
-                    await Task.Run(async () =>
-                    {
-                        await Task.Delay(500);
-                    });
-                    isMailOpen = Styx.CommonBot.Frames.MailFrame.Instance.IsVisible;
-                }
-                await Task.Run(async () =>
-                {
-                    await Task.Delay(300);
-                });
-                hasMail = Lua.GetReturnVal<bool>("return MILA_INBOX:hasMail()", 0);
-            }
-            doingPostv2 = true;
-            doingMailv2 = false;
-            Log("fertig mit post abholen");
-            Styx.CommonBot.Frames.MailFrame.Instance.Close();
-            PostItemsv2();
-            /*
+            debug_m = true;
+            debug_m = true;
             doingMailv2 = true;
             Log("GetMailv2");
             WoWGameObject mail = GetMailBox();
@@ -214,8 +228,6 @@ namespace ah
             while (!canUseMail)
             {
                 Log("können post nicht usen");
-                doingMailv2 = false;
-                return;
                 await Task.Run(async () =>
                 {
                     WoWMovement.ClickToMove(mail.Location);
@@ -238,7 +250,7 @@ namespace ah
                         await Task.Delay(4000);
                     });
                 }
-                //Log("wir haben post");
+                    //Log("wir haben post");
                 bool isMailOpen = Styx.CommonBot.Frames.MailFrame.Instance.IsVisible;
                 while (!isMailOpen)
                 {
@@ -251,7 +263,7 @@ namespace ah
                 }
                 if (isMailOpen)
                     Lua.DoString("MILA_INBOX:getAll()");
-                if (Lua.GetReturnVal<bool>("return MILA_INBOX:shouldReload()", 0))
+                if (Styx.CommonBot.Frames.MailFrame.Instance.MailCount <= 0)
                 {
                     Log("wir haben mehr post aber seite ist leer");
                     doReload();
@@ -270,59 +282,34 @@ namespace ah
             Log("fertig mit post abholen");
             Styx.CommonBot.Frames.MailFrame.Instance.Close();
             PostItemsv2();
-            */
         }
         public async Task PostItemsv2()
         {
             doingPostv2 = true;
             Log("PostItemsv2");
             WoWUnit auctioneer = findAuctioner();
-            bool canTalkToAh;
-            while (true)
+            bool WithinInteractRange = auctioneer.WithinInteractRange;
+            while (!WithinInteractRange)
             {
-                canTalkToAh = auctioneer.WithinInteractRange;
-                await Task.Run(async () =>
-                {
-                    Log("sleep 400");
-                    await Task.Delay(400);
-                });
-                if (!canTalkToAh || canTalkToAh)
-                    break;
-            }
-            Log(string.Format("canTalkToAh {0}", canTalkToAh.ToString()));
-            while (!canTalkToAh)
-            {
-                Log("koennen mit ah nicht reden");
-                doingPostv2 = false;
-                return;
                 WoWMovement.ClickToMove(auctioneer.Location);
                 await Task.Run(async () =>
                 {
-                    Log("sleep 400");
-                    await Task.Delay(400);
+                    await Task.Delay(600);
                 });
-                Log("canTalkToAh");
-                canTalkToAh = auctioneer.WithinInteractRange;
-                if (canTalkToAh && Me.IsMoving)
-                    WoWMovement.MoveStop();
+                WithinInteractRange = auctioneer.WithinInteractRange;
             }
-            Log("können mit ah reden");
-            bool isAhOpen = Styx.CommonBot.Frames.AuctionFrame.Instance.IsVisible;
-            while (!isAhOpen)
+            bool IsVisible = Styx.CommonBot.Frames.AuctionFrame.Instance.IsVisible;
+            while (!IsVisible)
             {
                 auctioneer.Interact();
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(700);
+                    await Task.Delay(600);
                 });
-                isAhOpen = Styx.CommonBot.Frames.AuctionFrame.Instance.IsVisible;
+                IsVisible = Styx.CommonBot.Frames.AuctionFrame.Instance.IsVisible;
             }
-            Log("ah ist offen");
             Lua.DoString("AuctionFrameTab5:Click()");
-            await Task.Run(async () =>
-            {
-                await Task.Delay(500);
-            });
+            //Lua.DoString("MILA_GUI:startPost()");
             Lua.DoString("RunMacroText(\"/click postBtn\")");
             bool dScanning = Lua.GetReturnVal<bool>("return MILA_POSTSCAN:doneScanning()", 0);
             //Log(string.Format("dScanning {0}", dScanning));
@@ -333,12 +320,6 @@ namespace ah
                 {
                     await Task.Delay(1500);
                 });
-                if (Lua.GetReturnVal<bool>("return MILA_MANAGE:hasItemsToSell()", 0))
-                {
-                    Log("hasItemsToSell");
-                    doingPostv2 = false;
-                    return;
-                }
                 dScanning = Lua.GetReturnVal<bool>("return MILA_POSTSCAN:doneScanning()", 0);
             }
             bool donePosting = Lua.GetReturnVal<bool>("return MILA_MANAGE:donePosting()", 0);
@@ -350,113 +331,24 @@ namespace ah
                 KeyboardManager.ReleaseKey('4');
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(200);
                 });
                 donePosting = Lua.GetReturnVal<bool>("return MILA_MANAGE:donePosting()", 0);
             }
             Lua.DoString("MILA_MANAGE:resetDonePosting()");
-            Lua.DoString("MILA_POSTSCAN:resetScanning()");
             Styx.CommonBot.Frames.AuctionFrame.Instance.Close();
+            await Task.Run(async () =>
+            {
+                await Task.Delay(400);
+            });
             Log("fertig mit posten");
             doingPostv2 = false;
-        }
-
-        public async Task checkAuction()
-        {
-            startedAuction = true;
-            Log("checkAuction");
-            bool hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-            while (true)
-            {
-                Log("sind in while(true)");
-                if (doingMailv2 || doingPostv2)
-                {
-                    Log("fick dich hb");
-                    startedAuction = false;
-                    break;
-                }
-                    hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-                //Log(String.Format("{0} {1}", hasAuction.ToString(), Me.Name.ToString()));
-                Log(hasAuction.ToString());
-                if (hasAuction)
-                {
-                    while (hasAuction)
-                    {
-                        Log("wir haben auktion");
-                        KeyboardManager.PressKey('4');
-                        KeyboardManager.ReleaseKey('4');
-                        await Task.Run(async () =>
-                        {
-                            await Task.Delay(100);
-                        });
-                        hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-                    }
-                }
-                /*
-                if (!StyxWoW.IsInGame || !StyxWoW.IsInWorld || doingMailv2 || doingPostv2|| !TreeRoot.IsRunning)
-                {
-                    Log("brechen abcheckAuction");
-                    startedAuction = false;
-                    break;
-                }*/
-               await Task.Run(async () =>
-                {
-                    await Task.Delay(100);
-                }); 
-            }
-            Log("wtf machen wir hier");
-            startedAuction = false;
-        }
-
-        public async Task buyAuction()
-        {
-            bool hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-            Log(String.Format("{0} {1}", hasAuction.ToString(), Me.Name.ToString()));
-            if (hasAuction)
-            {
-                while (hasAuction)
-                {
-                    KeyboardManager.PressKey('4');
-                    KeyboardManager.ReleaseKey('4');
-                    await Task.Run(async () =>
-                    {
-                        await Task.Delay(100);
-                    });
-                    hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-                }
-            }
         }
         #region Pulse
         public override void Pulse()
         {
-            if (!StyxWoW.IsInGame || !StyxWoW.IsInWorld)
-                return;
-            if (!Styx.CommonBot.Frames.AuctionFrame.Instance.IsVisible)
-            {
-                alreadySniping = false;
-                isShopping = false;
-            }
-            /*if (sleepThread == false)
-            {
-                delay_reload();
-                sleepThread = true;
-            }*/
-            Lua.DoString("CloseAllBags()");
-            if (hasWhisper)
-            {
-                checkForReplys();
-            }
-            if (!doingMailv2 && !doingPostv2)
-            {
-                doWork();
-                hasAuction = Lua.GetReturnVal<bool>("return MILA_TAB:hasAuction()", 0);
-                Log(String.Format("{0} {1}", hasAuction.ToString(), Me.Name.ToString()));
-                if (hasAuction)
-                {
-                    KeyboardManager.PressKey('4');
-                    KeyboardManager.ReleaseKey('4');
-                }
-            }
+            if(!debug_m)
+            GetMailv2();
         }
         #endregion
         #region startSnipe
@@ -486,7 +378,6 @@ namespace ah
         #endregion
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            Log("ontimedevent");
             GetMailv2();
         }
         private void checkIfLoggedIn(object sender, ElapsedEventArgs e)
@@ -494,19 +385,17 @@ namespace ah
             if (!StyxWoW.IsInGame || !StyxWoW.IsInWorld)
             {
                 string s = Lua.GetReturnValues("return AccountLogin.UI.AccountEditBox:GetText()")[0].ToString();
-            /*if (s.Contains("mail"))// == "mail@gmail.com")
-            {
-                Lua.DoString("AccountLogin.UI.PasswordEditBox:SetText(\"password\")"); // set password 
-            }
-            else
-            {
-                Lua.DoString("AccountLogin.UI.PasswordEditBox:SetText(\"password\")"); // set password 
-            }*/
-            Lua.DoString("AccountLogin.UI.PasswordEditBox:SetText(\"password\")"); // set password 
-            //password
-            Thread.Sleep(500);
+                if (s.Contains("mailn"))
+                {
+                    Lua.DoString("AccountLogin.UI.PasswordEditBox:SetText(\"password\")"); // set password 
+                }
+                else
+                {
+                    Lua.DoString("AccountLogin.UI.PasswordEditBox:SetText(\"password\")"); // set password 
+                }
+                Thread.Sleep(500);
                 Lua.DoString("AccountLogin_Login()"); //do login 
-                Thread.Sleep(6000);
+                Thread.Sleep(2500);
                 Lua.DoString("CharSelectEnterWorldButton:Click()"); //login to realm
             }
         }
@@ -518,52 +407,35 @@ namespace ah
             Log(time.ToString("h:mm:ss tt"));
             //aTimer = new System.Timers.Timer(60 * 60 * 3 * 1000); //one hour in milliseconds
             //aTimer = new System.Timers.Timer(60 * 60 * 1000); //one hour in milliseconds
-            aTimer = new System.Timers.Timer(30 * 1000); //one hour in milliseconds
+            //aTimer = new System.Timers.Timer(30 * 1000); //one hour in milliseconds
             //aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             //aTimer.Start();
-
+            /*
             loginTimer = new System.Timers.Timer(60 * 1000);
             loginTimer.Elapsed += new ElapsedEventHandler(checkIfLoggedIn);
             loginTimer.Start();
-
-            relogTimer = new System.Timers.Timer(60*10 * 1000);
-            relogTimer.Elapsed += new ElapsedEventHandler(checkIfReload);
-            relogTimer.Start();
-
+            
             if (attachedToChat == false)
             {
                 attachedToChat = true;
                 Lua.Events.AttachEvent("CHAT_MSG_SYSTEM", handleAuction);
                 Lua.Events.AttachEvent("CHAT_MSG_WHISPER", handleWhisper);
-                try
-                {
-                    string data = "{\"email\":\"mail@gmail.com\",\"password\": \"password\"}";
-                    token = GetLoginToken("https://discordapp.com/api/v6/auth/login", data, "application/json");
-                }
-                catch
-                {
-                    token = "";
-                }
-            }
+                string data = "{\"email\":\"mail@gmail.com\",\"password\": \"password\"}";
+                token = GetLoginToken("https://discordapp.com/api/v6/auth/login", data, "application/json");
+            }*/
             Log(string.Format("Plugin enabled {0}", Me.Name.ToString()));
-        }
-
-        private void checkIfReload(object sender, ElapsedEventArgs e)
-        {
-            if(TreeRoot.IsRunning)
-            doReload();
         }
         #endregion
         #region OnDisable
         public override void OnDisable()
         {
-            Lua.Events.DetachEvent("CHAT_MSG_SYSTEM", handleAuction);
+            /*Lua.Events.DetachEvent("CHAT_MSG_SYSTEM", handleAuction);
             Lua.Events.DetachEvent("CHAT_MSG_WHISPER", handleWhisper);
             startedSniper = false;
             aTimer.Dispose();
             loginTimer.Stop();
-            relogTimer.Stop();
-            attachedToChat = false;
+            attachedToChat = false;*/
+            debug_m = false;
             Log("Plugin disabled");
         }
         #endregion
@@ -592,8 +464,6 @@ namespace ah
         #region prepareSendMessage
         private void prepareSendMessage(string msg, string channel_id)
         {
-            if (token == "")
-                return;
             //Log(string.Format("Message: {0}", msg), LogLevel.Normal);
             string message = string.Format("{{\"content\":\"{0}:{1}\",\"nonce\":\"240535141317869568\",\"tts\":\"false\"}}", Me.Name, msg);
             string head = string.Format("authorization: {0}", token);
@@ -604,7 +474,7 @@ namespace ah
         #region Log
         private void Log(string v)
         {
-            Logging.Write(LogLevel.Normal, Colors.Aquamarine, string.Format("[Auction House Bot]: {0}", v));
+            Logging.Write(LogLevel.Normal, Colors.Aquamarine, string.Format("[Mail Bot]: {0}", v));
         }
         #endregion
         #region checkForReplys
