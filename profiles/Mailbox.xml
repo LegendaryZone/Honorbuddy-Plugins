@@ -1,0 +1,30 @@
+<HBProfile>
+	<Name>Mailbox </Name>
+	<MinLevel>1</MinLevel>
+	<MaxLevel>9999</MaxLevel>
+
+
+	<MailGrey>False</MailGrey>
+	<MailWhite>True</MailWhite>
+	<MailGreen>True</MailGreen>
+	<MailBlue>True</MailBlue>
+	<MailPurple>True</MailPurple>  
+	
+	<Blackspots></Blackspots>
+
+	<Vendors>
+	</Vendors>
+	
+	<Mailboxes>
+		<!--<Mailbox Name="Mailbox" Entry="195218" X="8008.742" Y="-2668.054" Z="512.0641" Nav="Fly" UsableWhen="true"/>-->
+		<Mailbox X="1607.681" Y="-4424.809" Z="13.6011" Nav="Fly" UsableWhen="true"/>
+	</Mailboxes>
+
+	<AvoidMobs></AvoidMobs>
+
+<QuestOrder>
+   
+   <CustomBehavior File="ForceSetVendor" DoMail="true" DoRepair="false" DoSell="false" DoTrain="false" />
+       
+</QuestOrder>
+</HBProfile>

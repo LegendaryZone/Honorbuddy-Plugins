@@ -1,0 +1,45 @@
+<HBProfile>
+<Name>Fight Here</Name>
+<MinDurability>0.4</MinDurability>
+<MinFreeBagSlots>1</MinFreeBagSlots>
+
+<MinLevel>0</MinLevel>
+<MaxLevel>91</MaxLevel>
+
+<MailWhite>true</MailWhite>
+<MailGreen>true</MailGreen>
+<MailBlue>true</MailBlue>
+<MailPurple>true</MailPurple>
+
+<SellGrey>true</SellGrey>
+<SellWhite>false</SellWhite>
+<SellGreen>false</SellGreen>
+<SellBlue>false</SellBlue>
+<SellPurple>false</SellPurple>
+
+<Vendors>
+</Vendors>
+
+<Mailboxes>
+</Mailboxes>
+
+<Blackspots>
+</Blackspots>
+
+<GrindArea>
+    <Name>Fight Here</Name>
+    <Factions>16</Factions>
+    <LootRadius>146</LootRadius>
+    <MaxDistance>146</MaxDistance>
+    <Hotspots>
+<Hotspot X="2281.145" Y="2343.843" Z="110.7901" />
+<Hotspot X="2208.376" Y="2289.674" Z="79.71432" />
+<Hotspot X="2119.648" Y="2383.283" Z="79.9894" />
+<Hotspot X="2193.623" Y="2444.81" Z="108.3111" />
+    </Hotspots>
+    <!-- Factions:
+Summon Enabler Stalker: Count 5, faction 14, entry 53488Qiraji Gladiator: Count 2, faction 310, entry 15324Hive'Zara Stinger: Count 1, faction 310, entry 15327Hive'Zara Wasp: Count 1, faction 310, entry 15325Vile Scarab: Count 1, faction 15, entry 15168
+    -->
+</GrindArea>
+
+</HBProfile>

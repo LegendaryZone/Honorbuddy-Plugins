@@ -1,0 +1,84 @@
+<HBProfile>
+   <Name>Empty</Name>
+   <MinLevel>1</MinLevel>
+   <MaxLevel>9999</MaxLevel>
+   
+   <!-- choices are "Fly", or "Run" -->
+   <!--<DefaultNavType>Fly</DefaultNavType>-->
+   
+   <MinDurability>0.3</MinDurability>
+   <MinFreeBagSlots>9</MinFreeBagSlots>
+   
+   <MailGrey>false</MailGrey>
+   <MailWhite>false</MailWhite>
+   <MailGreen>true</MailGreen>
+   <MailBlue>true</MailBlue>
+   <MailPurple>true</MailPurple>
+   
+   <SellGrey>true</SellGrey>
+   <SellWhite>true</SellWhite>
+   <SellGreen>false</SellGreen>
+   <SellBlue>false</SellBlue>
+   <SellPurple>false</SellPurple>
+   
+   <TargetElites>true</TargetElites>	
+   
+   
+   <AvoidMobs>
+   </AvoidMobs>
+   
+   
+   <Blackspots>
+   </Blackspots>
+   
+   
+   <Mailboxes>
+		<Mailbox Name="Mailbox" X="-3666.559" Y="-5278.83" Z="41.7954" Nav="Fly" UsableWhen="true"/>
+   </Mailboxes>
+   
+   
+   <Vendors>
+   </Vendors>
+   
+   
+   <QuestOrder>
+       <SetGrindArea>
+           <GrindArea>
+               <TargetMinLevel>1</TargetMinLevel>
+               <TargetMaxLevel>50</TargetMaxLevel>
+               <MaxDistance>30</MaxDistance>
+                
+       
+               <Factions>2272 2273</Factions>
+               <!--<MobIds>1051 5840</MobIds>-->
+				<RandomizeHotspots>true</RandomizeHotspots>
+               <Hotspots>
+			   <Hotspot X="-3466.407" Y="-3125.965" Z="21.3417" />
+<Hotspot X="-3469.798" Y="-3139.507" Z="22.88576" />
+<Hotspot X="-3469.619" Y="-3154.299" Z="23.05199" />
+<Hotspot X="-3467.77" Y="-3169.275" Z="23.99784" />
+<Hotspot X="-3466.351" Y="-3184.06" Z="23.88297" />
+<Hotspot X="-3465.045" Y="-3199.26" Z="23.75324" />
+<Hotspot X="-3453.85" Y="-3207.898" Z="22.13987" />
+<Hotspot X="-3439.47" Y="-3212.524" Z="23.07665" />
+<Hotspot X="-3427.704" Y="-3206.84" Z="24.61463" />
+<Hotspot X="-3425.023" Y="-3192.11" Z="24.09842" />
+<Hotspot X="-3422.01" Y="-3177.382" Z="24.07692" />
+<Hotspot X="-3419.726" Y="-3162.438" Z="24.32617" />
+<Hotspot X="-3420.455" Y="-3147.493" Z="25.75128" />
+<Hotspot X="-3430.838" Y="-3137.554" Z="24.10162" />
+<Hotspot X="-3445.254" Y="-3132.879" Z="21.43352" />
+<Hotspot X="-3453.724" Y="-3131.361" Z="21.42736" />
+<Hotspot X="-3453.724" Y="-3131.361" Z="21.42736" />
+
+               </Hotspots>
+           </GrindArea>    
+       </SetGrindArea>
+   
+       <!-- Grind until level 63, then we'll move to a better grind area -->
+       <GrindUntil Nav="Fly" Condition="Me.Level &#60;= 63.0" />
+   
+       <!-- ...more grind areas and GrindUntils... -->
+   </QuestOrder>
+   
+</HBProfile>

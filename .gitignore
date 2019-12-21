@@ -1,5 +1,5 @@
 *.pdb
-*.xml
+Newtonsoft.Json.xml
 *.dll
 *.sln
 *.csproj

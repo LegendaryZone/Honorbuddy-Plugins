@@ -1,0 +1,74 @@
+<HBProfile>
+<Name>Fight Here</Name>
+<MinDurability>0.4</MinDurability>
+<MinFreeBagSlots>1</MinFreeBagSlots>
+
+<MinLevel>0</MinLevel>
+<MaxLevel>9999</MaxLevel>
+
+<MailWhite>true</MailWhite>
+<MailGreen>true</MailGreen>
+<MailBlue>true</MailBlue>
+<MailPurple>true</MailPurple>
+
+<SellGrey>true</SellGrey>
+<SellWhite>true</SellWhite>
+<SellGreen>false</SellGreen>
+<SellBlue>false</SellBlue>
+<SellPurple>false</SellPurple>
+
+<Vendors>
+		<Vendor Name="Krinkle Goodsteel" Entry="5411" Type="Repair" X="-7232.01" Y="-3751.71" Z="9.092834" />
+</Vendors>
+
+<Mailboxes>
+		<Mailbox X="-7082.707" Y="-3851.493" Z="9.774841" />
+</Mailboxes>
+
+
+		<AvoidMobs>
+		<Mob Name="Tony Two Tusk" Entry="40958" />
+		<Mob Name="Southsea Sailor" Entry="40092"/>
+		<Mob Name="Southsea Sailor" Entry="40432"/>
+		<Mob Name="Savage Parrot" Entry="40431"/>
+		</AvoidMobs>
+
+
+<Blackspots>
+</Blackspots>
+
+<GrindArea>
+    <Name>Fight Here</Name>
+    <Factions>230</Factions>
+    <LootRadius>25</LootRadius>
+    <MaxDistance>25</MaxDistance>
+    <Hotspots>
+<Hotspot X="-6406.413" Y="-4479.763" Z="88.10549" />
+<Hotspot X="-6400.187" Y="-4535.513" Z="80.80886" />
+<Hotspot X="-6415.933" Y="-4580.11" Z="79.18819" />
+<Hotspot X="-6434.826" Y="-4615.455" Z="77.88801" />
+<Hotspot X="-6407.82" Y="-4620.39" Z="79.9082" />
+<Hotspot X="-6381.535" Y="-4622.827" Z="80.68795" />
+<Hotspot X="-6381.353" Y="-4650.708" Z="76.13725" />
+<Hotspot X="-6354.392" Y="-4662.718" Z="78.04712" />
+<Hotspot X="-6324.853" Y="-4644.657" Z="74.49817" />
+<Hotspot X="-6352.307" Y="-4609.777" Z="66.52293" />
+<Hotspot X="-6336.908" Y="-4588.607" Z="68.85438" />
+<Hotspot X="-6305.03" Y="-4557.958" Z="77.18765" />
+<Hotspot X="-6365.135" Y="-4538.632" Z="83.07478" />
+<Hotspot X="-6382.166" Y="-4543.553" Z="83.02656" />
+<Hotspot X="-6375.525" Y="-4577.566" Z="75.34045" />
+<Hotspot X="-6360.362" Y="-4564.479" Z="80.29293" />
+    </Hotspots>
+    <!-- Factions:
+Summon Enabler Stalker: Count 5, faction 14, entry 53488Qiraji Gladiator: Count 2, faction 310, entry 15324Hive'Zara Stinger: Count 1, faction 310, entry 15327Hive'Zara Wasp: Count 1, faction 310, entry 15325Vile Scarab: Count 1, faction 15, entry 15168
+    -->
+			<!--<If Condition="(Me.FreeBagSlots &lt;= 10) || (Me.LowestDurabilityPercent &gt; 20.0)" >
+					<CustomBehavior File="Message" Text="Moving to Tanaris Mailbox" LogColor="Lime" />
+					<CustomBehavior File="FlyTo" X="-7082.707" Y="-3851.493" Z="9.774841" />
+					<CustomBehavior File="ForceSetVendor" DoMail="True" DoRepair="True" DoSell="True" DoTrain="False" />
+			</If> -->
+</GrindArea>
+	
+
+</HBProfile>
